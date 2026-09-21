@@ -11,11 +11,12 @@ One self-contained `index.html`. No build step, no dependencies, no network call
 **Counter** — the whole screen is the button. Two numbers only:
 
 ```
-1        current Rak‘ah
+0        Rak‘ahs completed so far (starts at 0)
 25       seconds left on double-tap protection
 ```
 
-- One tap per Rak‘ah. Tap after the last Rak‘ah ends the prayer.
+- One tap per Rak‘ah — tap as you finish one, the top number goes up by one (0 → 1 → 2 …).
+- Tapping after the last Rak‘ah ends the prayer.
 - A tap is only accepted 25 seconds after the previous one (protection against tapping twice by accident).
 - The background shifts a calm shade per Rak‘ah as a second memory cue.
 - After each prayer: a full-screen rest countdown (e.g. `300`), then the next prayer starts by itself.
