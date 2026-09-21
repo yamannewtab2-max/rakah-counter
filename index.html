@@ -129,7 +129,7 @@
 
 <!-- ============ COUNTER ============ -->
 <div class="screen" id="counter" hidden>
-  <div class="num" id="rakatNum">1</div>
+  <div class="num" id="rakatNum">0</div>
   <div class="num" id="secNum">0</div>
 </div>
 
@@ -146,11 +146,11 @@ var PRAYERS = [
 ];
 var BASE = {bg:'#0a0c0e', ink:'#e9edf0', tint:'rgba(140,160,180,.06)'};
 var SHADES = [
-  {bg:'#0d1114', ink:'#e6ebee', tint:'rgba(130,165,195,.10)'}, // slate
-  {bg:'#0e1218', ink:'#e4eaf4', tint:'rgba(110,145,205,.10)'}, // blue
-  {bg:'#12101a', ink:'#e7e4f4', tint:'rgba(140,125,205,.10)'}, // violet
-  {bg:'#171013', ink:'#f0e8ea', tint:'rgba(200,140,150,.09)'}, // plum
-  {bg:'#0d1411', ink:'#e2eee7', tint:'rgba(120,180,150,.09)'}  // moss
+  {bg:'#0c1112', ink:'#e6eeee', tint:'rgba(120,175,160,.09)'}, // 0 — start
+  {bg:'#0d1114', ink:'#e6ebee', tint:'rgba(130,165,195,.10)'}, // 1 — slate
+  {bg:'#0e1218', ink:'#e4eaf4', tint:'rgba(110,145,205,.10)'}, // 2 — blue
+  {bg:'#12101a', ink:'#e7e4f4', tint:'rgba(140,125,205,.10)'}, // 3 — violet
+  {bg:'#171013', ink:'#f0e8ea', tint:'rgba(200,140,150,.09)'}  // 4 — plum
 ];
 var REST = {bg:'#0b0d0f', ink:'#dfe4e8', tint:'rgba(150,160,170,.05)'};
 var LOCK = 25000, MAX_REPS = 12, RESTS = [0,1,2,3,5,10], STORE = 'rakah.v1';
@@ -193,7 +193,7 @@ function load(){
 
 /* ---------------- visuals ---------------- */
 function applyShade(idx, custom){
-  var s = custom || SHADES[(Math.max(1,idx) - 1) % SHADES.length];
+  var s = custom || SHADES[Math.abs(idx) % SHADES.length];
   var st = document.documentElement.style;
   st.setProperty('--bg', s.bg);
   st.setProperty('--ink', s.ink);
@@ -269,7 +269,7 @@ function startSession(){
     for(var i = 0, n = cfg.reps[p.k]; i < n; i++) q.push({k:p.k, total:p.r});
   });
   if(!q.length) return;
-  sess = {q:q, i:0, rakat:1, lastTapAt:0, restUntil:0, phase:'pray'};
+  sess = {q:q, i:0, rakat:0, lastTapAt:0, restUntil:0, phase:'pray'};
   save();
   enterCounter();
 }
@@ -277,12 +277,12 @@ function startSession(){
 function advance(){
   if(sess.i >= sess.q.length - 1){ finish(); return; }
   sess.i++;
-  sess.rakat = 1;
+  sess.rakat = 0;
   sess.phase = 'pray';
   sess.restUntil = 0;
   counterEl.classList.remove('rest');
-  rakatEl.textContent = '1';
-  applyShade(1);
+  rakatEl.textContent = '0';
+  applyShade(0);
   save();
 }
 function finish(){
@@ -313,15 +313,12 @@ function onTap(){
   var now = Date.now();
   if(now < sess.lastTapAt + LOCK) return;   // still protected — ignore completely
   sess.lastTapAt = now;
-  if(sess.rakat >= sess.q[sess.i].total){
-    completePrayer(now);
-  }else{
-    sess.rakat++;
-    rakatEl.textContent = sess.rakat;
-    applyShade(sess.rakat);
-    pulse();
-    save();
-  }
+  sess.rakat++;
+  rakatEl.textContent = sess.rakat;
+  applyShade(sess.rakat);
+  pulse();
+  if(sess.rakat >= sess.q[sess.i].total) completePrayer(now);
+  else save();
   tick();
 }
 
